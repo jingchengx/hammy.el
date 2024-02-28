@@ -1043,49 +1043,6 @@ Suitable for inserting with `insert-image'."
 ;;;; Hammys
 
 ;; Pre-defined for convenience.
-
-(hammy-define "Flywheel"
-  :documentation "Get your momentum going!"
-  :intervals (list (interval :name "Rest"
-                             :face 'font-lock-type-face
-                             :duration "5 minutes"
-                             :before (do (announce "Rest time!")
-                                         (notify "Rest time!"))
-                             :advance (do (announce "Rest time is over!")
-                                          (notify "Rest time is over!")))
-                   (interval :name "Work"
-                             :face 'font-lock-builtin-face
-                             :duration (climb "5 minutes" "45 minutes"
-                                              :descend t :step "5 minutes")
-                             :before (do (announce "Work time!")
-                                         (notify "Work time!"))
-                             :advance (do (announce "Work time is over!")
-                                          (notify "Work time is over!"))))
-  :after (do (announce "Flywheel session complete!")
-             (notify "Flywheel session complete!"))
-  :complete-p (do (and (> cycles 1)
-                       interval
-                       (equal "Work" interval-name)
-                       (equal (duration "5 minutes") current-duration))))
-
-(hammy-define "Move"
-  :documentation "Don't forget to stretch your legs!"
-  :intervals (list (interval :name "💺"
-                             :duration "45 minutes"
-                             :face 'font-lock-type-face
-                             :before (do (announce "Whew!")
-                                         (notify "Whew!"))
-                             :advance (remind "10 minutes"
-                                              (do (announce "Time to stretch your legs!")
-                                                  (notify "Time to stretch your legs!"))))
-                   (interval :name "🤸"
-                             :duration "5 minutes"
-                             :face 'font-lock-builtin-face
-                             :before (do (announce "Move it!")
-                                         (notify "Move it!"))
-                             :advance (do (announce "Time for a sit-down...")
-                                          (notify "Time for a sit-down...")))))
-
 (hammy-define "Pom"
   :documentation "The classic pomodoro timer."
   :intervals
@@ -1102,62 +1059,12 @@ Suitable for inserting with `insert-image'."
                                ;; elapsed, the fourth work period was
                                ;; just completed, so take a longer break.
                                "30 minutes"
-                             "3 seconds"))
-             :advance (remind "3 seconds"
+                             "5 minutes"))
+             :advance (remind "5 minutes"
                               (do (announce "Break time is over!")
                                   (notify "Break time is over!")
 				  (async-shell-command "aplay ~/assets/sounds/notification_high-intensity.wav"))))))
 
-(hammy-define "⅓-time"
-  :documentation "Breaks that are ⅓ as long as the last work interval."
-  :intervals
-  (list
-   (interval :name "Work"
-             ;; It's intended that the user manually end this interval
-             ;; when ready, but we specify a maximum of 90 minutes by
-             ;; default.
-             :duration "90 minutes"
-             :before (do (announce "Starting work time (advance to break when ready).")
-                         (notify "Starting work time (advance to break when ready)."))
-             :advance (remind "10 minutes" 
-                              (do (let* ((current-duration
-                                          (ts-human-format-duration
-                                           (float-time
-                                            (time-subtract (current-time)
-                                                           current-interval-start-time))))
-                                         (message (format "You've worked for %s!" current-duration)))
-                                    (announce message)
-                                    (notify message)
-                                    (when hammy-sound-end-work
-                                      (play-sound-file hammy-sound-end-work))))))
-   (interval :name "Break"
-             :duration (do (pcase-let* ((`(,_interval ,start ,end) (car history))
-                                        (work-seconds (float-time (time-subtract end start)))
-                                        (duration (* work-seconds 0.33)))
-                             (when (alist-get 'unused-break etc)
-                               ;; Add unused break time.
-                               (cl-incf duration (alist-get 'unused-break etc))
-                               (setf (alist-get 'unused-break etc) nil))
-                             duration))
-             :before (do (let ((message (format "Starting break for %s."
-                                                (ts-human-format-duration current-duration))))
-                           (announce message)
-                           (notify message)))
-             :after (do (let* ((elapsed
-                                (float-time
-                                 (time-subtract (current-time) current-interval-start-time)))
-                               (unused (- current-duration elapsed)))
-                          (when (> unused 0)
-                            ;; "Bank" unused break time.
-                            (if (alist-get 'unused-break etc)
-                                (cl-incf (alist-get 'unused-break etc) unused)
-                              (setf (alist-get 'unused-break etc) unused)))))
-             :advance (remind "5 minutes"
-                              (do (announce "Break time is over!")
-                                  (notify "Break time is over!")
-                                  (when hammy-sound-end-break
-                                    (play-sound-file hammy-sound-end-break))))))
-  :stopped (do (setf (alist-get 'unused-break etc) nil)))
 
 ;;;; Footer
 
