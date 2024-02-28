@@ -1086,30 +1086,27 @@ Suitable for inserting with `insert-image'."
                              :advance (do (announce "Time for a sit-down...")
                                           (notify "Time for a sit-down...")))))
 
-(hammy-define (propertize "🍅" 'face '(:foreground "tomato"))
+(hammy-define "Pom"
   :documentation "The classic pomodoro timer."
   :intervals
   (list
-   (interval :name "Working"
+   (interval :name "Work"
              :duration "25 minutes"
-             :before (do (announce "Starting work time.")
-                         (notify "Starting work time."))
-             :advance (remind "10 minutes"
+             :advance (remind "25 minutes"
                               (do (announce "Break time!")
                                   (notify "Break time!"))))
-   (interval :name "Resting"
+   (interval :name "Rest"
              :duration (do (if (and (not (zerop cycles))
                                     (zerop (mod cycles 3)))
                                ;; If a multiple of three cycles have
                                ;; elapsed, the fourth work period was
                                ;; just completed, so take a longer break.
                                "30 minutes"
-                             "5 minutes"))
-             :before (do (announce "Starting break time.")
-                         (notify "Starting break time."))
-             :advance (remind "10 minutes"
+                             "3 seconds"))
+             :advance (remind "3 seconds"
                               (do (announce "Break time is over!")
-                                  (notify "Break time is over!"))))))
+                                  (notify "Break time is over!")
+				  (async-shell-command "aplay ~/assets/sounds/notification_high-intensity.wav"))))))
 
 (hammy-define "⅓-time"
   :documentation "Breaks that are ⅓ as long as the last work interval."
