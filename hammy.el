@@ -1050,8 +1050,7 @@ Suitable for inserting with `insert-image'."
    (interval :name "Work"
              :duration "25 minutes"
              :advance (remind "25 minutes"
-                              (do (announce "Break time!")
-                                  (notify "Break time!"))))
+                              (do (announce "Break time!"))))
    (interval :name "Rest"
              :duration (do (if (and (not (zerop cycles))
                                     (zerop (mod cycles 3)))
