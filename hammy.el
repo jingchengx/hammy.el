@@ -1052,13 +1052,7 @@ Suitable for inserting with `insert-image'."
              :advance (remind "25 minutes"
                               (do (announce "Break time!"))))
    (interval :name "Rest"
-             :duration (do (if (and (not (zerop cycles))
-                                    (zerop (mod cycles 3)))
-                               ;; If a multiple of three cycles have
-                               ;; elapsed, the fourth work period was
-                               ;; just completed, so take a longer break.
-                               "30 minutes"
-                             "5 minutes"))
+             :duration "5 minutes"
              :advance (remind "5 minutes"
                               (do (announce "Break time is over!")
                                   (notify "Break time is over!")
