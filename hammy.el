@@ -1049,8 +1049,9 @@ Suitable for inserting with `insert-image'."
   (list
    (interval :name "Work"
              :duration "25 minutes"
-             :advance (remind "25 minutes"
-                              (do (announce "Break time!"))))
+             :advance (remind "15 minutes"
+                              (do (announce "Break time!")
+				  (notify "Break time!"))))
    (interval :name "Rest"
              :duration "5 minutes"
              :advance (remind "5 minutes"
